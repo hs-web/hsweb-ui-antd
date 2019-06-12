@@ -3,7 +3,9 @@
  * 更详细的 api 文档: https://github.com/umijs/umi-request
  */
 import { extend } from 'umi-request';
-import { notification } from 'antd';
+import { notification, message } from 'antd';
+import { getAccessToken } from './authority';
+import { router } from 'umi';
 
 interface ResponseError<D = any> extends Error {
   name: string;
@@ -37,10 +39,20 @@ const errorHandler = (error: ResponseError) => {
   const errortext = codeMessage[response.status] || response.statusText;
   const { status, url } = response;
 
-  notification.error({
-    message: `请求错误 ${status}: ${url}`,
-    description: errortext,
-  });
+
+  // notification.error({
+  //   message: `请求错误 ${status}: ${url}`,
+  //   description: errortext,
+  // });
+  if (status === 401) {
+    notification.error({
+      message: '未登录或登录已过期，请重新登录。',
+    });
+    message.error('未登录或登录已过期，请重新登录。')
+    router.push('/user/login');
+    return;
+  }
+
 };
 
 /**
@@ -49,6 +61,9 @@ const errorHandler = (error: ResponseError) => {
 const request = extend({
   errorHandler, // 默认错误处理
   credentials: 'include', // 默认请求是否带上cookie
+  headers: {
+    'access-token': getAccessToken(),
+  },
 });
 
 export default request;

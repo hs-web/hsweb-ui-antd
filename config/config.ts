@@ -33,20 +33,20 @@ const plugins: IPlugin[] = [
       },
       pwa: pwa
         ? {
-            workboxPluginMode: 'InjectManifest',
-            workboxOptions: {
-              importWorkboxFrom: 'local',
-            },
-          }
+          workboxPluginMode: 'InjectManifest',
+          workboxOptions: {
+            importWorkboxFrom: 'local',
+          },
+        }
         : false,
       ...(!TEST && os.platform() === 'darwin'
         ? {
-            dll: {
-              include: ['dva', 'dva/router', 'dva/saga', 'dva/fetch'],
-              exclude: ['@babel/runtime', 'netlify-lambda'],
-            },
-            hardSource: false,
-          }
+          // dll: {
+          //   include: ['dva', 'dva/router', 'dva/saga', 'dva/fetch'],
+          //   exclude: ['@babel/runtime', 'netlify-lambda'],
+          // },
+          hardSource: false,
+        }
         : {}),
     },
   ],
@@ -74,14 +74,14 @@ if (ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION === 'site') {
 const uglifyJSOptions =
   NODE_ENV === 'production'
     ? {
-        uglifyOptions: {
-          // remove console.* except console.error
-          compress: {
-            drop_console: true,
-            pure_funcs: ['console.error'],
-          },
+      uglifyOptions: {
+        // remove console.* except console.error
+        compress: {
+          drop_console: true,
+          pure_funcs: ['console.error'],
         },
-      }
+      },
+    }
     : {};
 export default {
   // add for transfer to umi
@@ -101,16 +101,85 @@ export default {
   // 路由配置
   routes: [
     {
+      path: '/user',
+      component: '../layouts/UserLayout',
+      routes: [
+        { path: '/user', redirect: '/user/login' },
+        { path: '/user/login', name: 'login', component: './user-login' },
+      ],
+    },
+    {
       path: '/',
       component: '../layouts/BasicLayout',
       Routes: ['src/pages/Authorized'],
-      authority: ['admin', 'user'],
       routes: [
         {
           path: '/',
           name: 'welcome',
           icon: 'smile',
           component: './Welcome',
+        },
+        {
+          path: 'system',
+          name: 'system',
+          icon: 'setting',
+          routes: [
+            {
+              path: '/system/user',
+              name: 'user',
+              component: './system/users',
+            },
+            { path: '/system/role', name: 'role', component: './system/role' },
+            { path: '/system/permission', name: 'permission', component: './system/permission' },
+            { path: '/system/dictionary', name: 'dictionary', component: './system/dictionary' },
+          ],
+        },
+        {
+          path: 'org',
+          name: 'org',
+          icon: 'home',
+          routes: [
+            { path: '/org/manager', name: 'manager', component: './org/manager' },
+            {
+              path: '/org/organizational',
+              name: 'organizational',
+              component: './org/organizational',
+            },
+            { path: '/org/person', name: 'person', component: './org/person' },
+          ],
+        },
+        {
+          path: 'devlop',
+          name: 'devlop',
+          icon: 'branches',
+          authority: [
+            'code-generator',
+            'database-manager',
+            'datasource',
+            'dynamic-form',
+            'schedule',
+            'template',
+          ],
+          routes: [
+            {
+              path: '/devlop/code-generator',
+              name: 'code-generator',
+              component: './devlop/code-generator',
+            },
+            {
+              path: '/devlop/database-manager',
+              name: 'database-manager',
+              component: './devlop/database-manager',
+            },
+            { path: '/devlop/datasource', name: 'datasource', component: './devlop/datasource' },
+            {
+              path: '/devlop/dynamic-form',
+              name: 'dynamic-form',
+              component: './devlop/dynamic-form',
+            },
+            { path: '/devlop/schedule', name: 'schedule', component: './devlop/schedule' },
+            { path: '/devlop/template', name: 'template', component: './devlop/template' },
+          ],
         },
       ],
     },
@@ -120,13 +189,13 @@ export default {
   theme: {
     'primary-color': primaryColor,
   },
-  // proxy: {
-  //   '/server/api/': {
-  //     target: 'https://preview.pro.ant.design/',
-  //     changeOrigin: true,
-  //     pathRewrite: { '^/server': '' },
-  //   },
-  // },
+  proxy: {
+    '/hsweb': {
+      target: 'http://localhost:8089/',
+      changeOrigin: true,
+      pathRewrite: { '^/hsweb': '' },
+    },
+  },
   ignoreMomentLocale: true,
   lessLoaderOptions: {
     javascriptEnabled: true,

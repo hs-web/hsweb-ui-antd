@@ -5,6 +5,9 @@ import { GlobalModelState } from './global';
 import { UserModelState } from './user';
 import { DefaultSettings as SettingModelState } from '../../config/defaultSettings';
 import { MenuDataItem } from '@ant-design/pro-layout';
+import { RoleModelState } from '@/models/role';
+import { UsersModelState } from './users';
+import { PermissionModelState } from './permission';
 export { GlobalModelState, SettingModelState, UserModelState };
 
 export type Effect = (
@@ -30,7 +33,10 @@ export interface Loading {
     global?: boolean;
     menu?: boolean;
     setting?: boolean;
-    user?: boolean;
+    user?: boolean;//当前登录用户
+    users?: boolean;//用户管理
+    role?: boolean;
+    permission?: boolean;
   };
 }
 
@@ -39,6 +45,9 @@ export interface ConnectState {
   loading: Loading;
   settings: SettingModelState;
   user: UserModelState;
+  users: UsersModelState;
+  role: RoleModelState;
+  permission: PermissionModelState;
 }
 
 export interface Route extends MenuDataItem {

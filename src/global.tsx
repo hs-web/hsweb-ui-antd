@@ -2,6 +2,7 @@ import React from 'react';
 import { notification, Button, message } from 'antd';
 import { formatMessage } from 'umi-plugin-react/locale';
 import defaultSettings from '../config/defaultSettings';
+import { Authentication } from './utils/authority';
 
 const { pwa } = defaultSettings;
 // if pwa is true
@@ -54,7 +55,7 @@ if (pwa) {
       description: formatMessage({ id: 'app.pwa.serviceworker.updated.hint' }),
       btn,
       key,
-      onClose: async () => {},
+      onClose: async () => { },
     });
   });
 } else if ('serviceWorker' in navigator) {
@@ -62,4 +63,10 @@ if (pwa) {
   navigator.serviceWorker.ready.then(registration => {
     registration.unregister();
   });
+}
+
+declare global {
+  interface Window {
+    __hsweb_autz: Authentication | undefined
+  }
 }
