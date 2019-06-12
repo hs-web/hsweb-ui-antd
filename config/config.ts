@@ -113,12 +113,12 @@ export default {
       component: '../layouts/BasicLayout',
       Routes: ['src/pages/Authorized'],
       routes: [
-        {
-          path: '/',
-          name: 'welcome',
-          icon: 'smile',
-          component: './Welcome',
-        },
+        // {
+        //   path: '/',
+        //   name: 'welcome',
+        //   icon: 'smile',
+        //   component: './Welcome',
+        // },
         {
           path: 'system',
           name: 'system',
