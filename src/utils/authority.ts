@@ -148,23 +148,29 @@ export function getAuthority(str?: string): any {
   //   typeof str === 'undefined' ? localStorage.getItem('hsweb-autz') : str;
   const autz = localStorage.getItem('hsweb-autz');
 
-  console.log(autz, 'autz');
+  if (autz !== null) {
+    console.log(autz, 'autz');
+    // authorityString could be admin, "admin", ["admin"]
 
-  const authentication = new Authentication(
-    JSON.parse(localStorage.getItem('hsweb-autz') || 'null'),
-  );
-  // authorityString could be admin, "admin", ["admin"]
-  const authority = authentication.permissions.map(e => e.id);
-  // try {
-  //   authority = JSON.parse(authorityString!);
-  // } catch (e) {
-  //   authority = authorityString;
-  // }
-  // if (typeof authority === 'string') {
-  //   return [authority];
-  // }
-  console.log(authority);
-  return authority;
+    const authentication = new Authentication(
+      JSON.parse(localStorage.getItem('hsweb-autz') || '{}'),
+    );
+    // authorityString could be admin, "admin", ["admin"]
+    const authority = authentication.permissions.map(e => e.id);
+    // try {
+    //   authority = JSON.parse(authorityString!);
+    // } catch (e) {
+    //   authority = authorityString;
+    // }
+    // if (typeof authority === 'string') {
+    //   return [authority];
+    // }
+    console.log(authority);
+    return authority;
+  } else {
+    return ['admin'];
+  }
+
 }
 
 export function setAuthority(authority: string | string[]): void {

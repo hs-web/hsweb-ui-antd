@@ -85,6 +85,9 @@ const uglifyJSOptions =
     : {};
 export default {
   // add for transfer to umi
+  history: 'hash',
+  base: '/dist/',
+  publicPath: '/dist/',
   plugins,
   define: {
     ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION:
@@ -113,12 +116,12 @@ export default {
       component: '../layouts/BasicLayout',
       Routes: ['src/pages/Authorized'],
       routes: [
-        // {
-        //   path: '/',
-        //   name: 'welcome',
-        //   icon: 'smile',
-        //   component: './Welcome',
-        // },
+        {
+          path: '/',
+          name: 'welcome',
+          icon: 'smile',
+          component: './Welcome',
+        },
         {
           path: 'system',
           name: 'system',
@@ -193,7 +196,7 @@ export default {
     '/hsweb': {
       target: 'http://localhost:8089/',
       changeOrigin: true,
-      pathRewrite: { '^/hsweb': '' },
+      pathRewrite: { '^/hsweb': '/' },
     },
   },
   ignoreMomentLocale: true,
