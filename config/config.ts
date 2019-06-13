@@ -4,9 +4,7 @@ import slash from 'slash2';
 import { IPlugin, IConfig } from 'umi-types';
 import defaultSettings from './defaultSettings';
 import webpackPlugin from './plugin.config';
-const { pwa, primaryColor } = defaultSettings;
-
-// preview.pro.ant.design only do not use in your production ;
+const { pwa, primaryColor } = defaultSettings; // preview.pro.ant.design only do not use in your production ;
 // preview.pro.ant.design 专用环境变量，请不要在你的项目中使用它。
 
 const { ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION, TEST, NODE_ENV } = process.env;
@@ -33,20 +31,20 @@ const plugins: IPlugin[] = [
       },
       pwa: pwa
         ? {
-          workboxPluginMode: 'InjectManifest',
-          workboxOptions: {
-            importWorkboxFrom: 'local',
-          },
-        }
+            workboxPluginMode: 'InjectManifest',
+            workboxOptions: {
+              importWorkboxFrom: 'local',
+            },
+          }
         : false,
       ...(!TEST && os.platform() === 'darwin'
         ? {
-          // dll: {
-          //   include: ['dva', 'dva/router', 'dva/saga', 'dva/fetch'],
-          //   exclude: ['@babel/runtime', 'netlify-lambda'],
-          // },
-          hardSource: false,
-        }
+            // dll: {
+            //   include: ['dva', 'dva/router', 'dva/saga', 'dva/fetch'],
+            //   exclude: ['@babel/runtime', 'netlify-lambda'],
+            // },
+            hardSource: false,
+          }
         : {}),
     },
   ],
@@ -74,14 +72,14 @@ if (ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION === 'site') {
 const uglifyJSOptions =
   NODE_ENV === 'production'
     ? {
-      uglifyOptions: {
-        // remove console.* except console.error
-        compress: {
-          drop_console: true,
-          pure_funcs: ['console.error'],
+        uglifyOptions: {
+          // remove console.* except console.error
+          compress: {
+            drop_console: true,
+            pure_funcs: ['console.error'],
+          },
         },
-      },
-    }
+      }
     : {};
 export default {
   // add for transfer to umi
@@ -107,8 +105,15 @@ export default {
       path: '/user',
       component: '../layouts/UserLayout',
       routes: [
-        { path: '/user', redirect: '/user/login' },
-        { path: '/user/login', name: 'login', component: './user-login' },
+        {
+          path: '/user',
+          redirect: '/user/login',
+        },
+        {
+          path: '/user/login',
+          name: 'login',
+          component: './user-login',
+        },
       ],
     },
     {
@@ -118,37 +123,70 @@ export default {
       routes: [
         {
           path: '/',
-          name: 'welcome',
-          icon: 'smile',
-          component: './Welcome',
+          redirect: '/analysis',
+        },
+        {
+          name: 'analysis',
+          path: '/analysis',
+          icon: 'bar-chart',
+          component: './analysis',
         },
         {
           path: 'system',
           name: 'system',
           icon: 'setting',
+          authority: ['user', 'role', 'permission', 'dictionary'],
           routes: [
             {
               path: '/system/user',
               name: 'user',
+              authority: ['user'],
               component: './system/users',
             },
-            { path: '/system/role', name: 'role', component: './system/role' },
-            { path: '/system/permission', name: 'permission', component: './system/permission' },
-            { path: '/system/dictionary', name: 'dictionary', component: './system/dictionary' },
+            {
+              path: '/system/role',
+              name: 'role',
+              authority: ['role'],
+              component: './system/role',
+            },
+            {
+              path: '/system/permission',
+              name: 'permission',
+              authority: ['permission'],
+              component: './system/permission',
+            },
+            {
+              path: '/system/dictionary',
+              name: 'dictionary',
+              authority: ['dictionary'],
+              component: './system/dictionary',
+            },
           ],
         },
         {
           path: 'org',
           name: 'org',
           icon: 'home',
+          authority: ['manager', 'organizational', 'person'],
           routes: [
-            { path: '/org/manager', name: 'manager', component: './org/manager' },
+            {
+              path: '/org/manager',
+              name: 'manager',
+              authority: ['manager'],
+              component: './org/manager',
+            },
             {
               path: '/org/organizational',
               name: 'organizational',
+              authority: ['organizational'],
               component: './org/organizational',
             },
-            { path: '/org/person', name: 'person', component: './org/person' },
+            {
+              path: '/org/person',
+              name: 'person',
+              authority: ['person'],
+              component: './org/person',
+            },
           ],
         },
         {
@@ -167,21 +205,39 @@ export default {
             {
               path: '/devlop/code-generator',
               name: 'code-generator',
+              authority: ['code-generator'],
               component: './devlop/code-generator',
             },
             {
               path: '/devlop/database-manager',
               name: 'database-manager',
+              authority: ['database-manager'],
               component: './devlop/database-manager',
             },
-            { path: '/devlop/datasource', name: 'datasource', component: './devlop/datasource' },
+            {
+              path: '/devlop/datasource',
+              name: 'datasource',
+              authority: ['datasource'],
+              component: './devlop/datasource',
+            },
             {
               path: '/devlop/dynamic-form',
               name: 'dynamic-form',
+              authority: ['dynamic-form'],
               component: './devlop/dynamic-form',
             },
-            { path: '/devlop/schedule', name: 'schedule', component: './devlop/schedule' },
-            { path: '/devlop/template', name: 'template', component: './devlop/template' },
+            {
+              path: '/devlop/schedule',
+              name: 'schedule',
+              authority: ['schedule'],
+              component: './devlop/schedule',
+            },
+            {
+              path: '/devlop/template',
+              name: 'template',
+              authority: ['template'],
+              component: './devlop/template',
+            },
           ],
         },
       ],
@@ -196,7 +252,9 @@ export default {
     '/hsweb': {
       target: 'http://localhost:8089/',
       changeOrigin: true,
-      pathRewrite: { '^/hsweb': '/' },
+      pathRewrite: {
+        '^/hsweb': '/',
+      },
     },
   },
   ignoreMomentLocale: true,

@@ -36,9 +36,8 @@ const codeMessage = {
  */
 const errorHandler = (error: ResponseError) => {
   const { response = {} as Response } = error;
-  const errortext = codeMessage[response.status] || response.statusText;
+  // const errortext = codeMessage[response.status] || response.statusText;
   const { status, url } = response;
-
 
   // notification.error({
   //   message: `请求错误 ${status}: ${url}`,
@@ -48,11 +47,10 @@ const errorHandler = (error: ResponseError) => {
     notification.error({
       message: '未登录或登录已过期，请重新登录。',
     });
-    message.error('未登录或登录已过期，请重新登录。')
+    message.error('未登录或登录已过期，请重新登录。');
     router.push('/user/login');
     return;
   }
-
 };
 
 /**
@@ -64,6 +62,16 @@ const request = extend({
   headers: {
     'access-token': getAccessToken(),
   },
+});
+
+request.interceptors.request.use((url, options) => {
+  return {
+    url: url.replace('/hsweb', ''),
+    options: {
+      ...options,
+      interceptors: true,
+    },
+  };
 });
 
 export default request;

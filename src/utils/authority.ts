@@ -137,7 +137,7 @@ export function clearAutz() {
 
 export function setAutz(info: Authentication): Authentication {
   const autz = (window.top.__hsweb_autz = new Authentication(info));
-  localStorage.setItem('hsweb-autz', JSON.stringify(info));
+  sessionStorage.setItem('hsweb-autz', JSON.stringify(info));
   return autz;
 }
 
@@ -146,14 +146,11 @@ export function getAuthority(str?: string): any {
   // return localStorage.getItem('antd-pro-authority') || ['admin', 'user'];
   // const authorityString =
   //   typeof str === 'undefined' ? localStorage.getItem('hsweb-autz') : str;
-  const autz = localStorage.getItem('hsweb-autz');
+  const autz = sessionStorage.getItem('hsweb-autz');
 
   if (autz !== null) {
-    console.log(autz, 'autz');
-    // authorityString could be admin, "admin", ["admin"]
-
     const authentication = new Authentication(
-      JSON.parse(localStorage.getItem('hsweb-autz') || '{}'),
+      JSON.parse(sessionStorage.getItem('hsweb-autz') || '{}'),
     );
     // authorityString could be admin, "admin", ["admin"]
     const authority = authentication.permissions.map(e => e.id);
@@ -165,12 +162,10 @@ export function getAuthority(str?: string): any {
     // if (typeof authority === 'string') {
     //   return [authority];
     // }
-    console.log(authority);
     return authority;
   } else {
     return ['admin'];
   }
-
 }
 
 export function setAuthority(authority: string | string[]): void {
