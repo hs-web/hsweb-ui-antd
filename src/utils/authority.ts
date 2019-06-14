@@ -131,6 +131,7 @@ export function getAutz(): Authentication | undefined {
 export function clearAutz() {
   window.top.__hsweb_autz = undefined;
   sessionStorage.removeItem('hsweb-autz');
+  sessionStorage.removeItem('x-access-token');
 }
 
 export function setAutz(info: Authentication): Authentication {

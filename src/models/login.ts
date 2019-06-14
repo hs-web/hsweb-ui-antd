@@ -2,6 +2,9 @@ import { routerRedux } from 'dva/router';
 import { Reducer, AnyAction } from 'redux';
 import { EffectsCommandMap } from 'dva';
 import { stringify, parse } from 'qs';
+import { loginOut } from '@/pages/user-login/service';
+import { reloadAuthorized } from '@/utils/Authorized';
+import { clearAutz } from '@/utils/authority';
 
 export function getPageQuery() {
   return parse(window.location.href.split('?')[1]);
@@ -31,18 +34,32 @@ const Model: ModelType = {
   },
 
   effects: {
-    *logout(_, { put }) {
-      const { redirect } = getPageQuery();
-      // redirect
-      if (window.location.pathname !== '/user/login' && !redirect) {
-        yield put(
-          routerRedux.replace({
-            pathname: '/user/login',
-            search: stringify({
-              redirect: window.location.href,
+    *logout(_, { call, put }) {
+      const response = yield call(loginOut);
+      if (response.status === 200) {
+        yield put({
+          type: 'changeLoginStatus',
+          payload: {
+            status: response.status,
+            result: {
+              currentAuthority: 'guest',
+            },
+          },
+        });
+        clearAutz();
+        reloadAuthorized();
+        const { redirect } = getPageQuery();
+        // redirect
+        if (window.location.pathname !== '/user/login' && !redirect) {
+          yield put(
+            routerRedux.replace({
+              pathname: '/user/login',
+              search: stringify({
+                redirect: window.location.href,
+              }),
             }),
-          }),
-        );
+          );
+        }
       }
     },
   },
