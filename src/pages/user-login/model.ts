@@ -1,6 +1,6 @@
 import { routerRedux } from 'dva/router';
 import { getPageQuery, setAuthority } from './utils/utils';
-import { getFakeCaptcha, userLogin } from './service';
+import { userLogin } from './service';
 import { Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
 import { AnyAction } from 'redux';
@@ -23,7 +23,6 @@ export interface ModelType {
   state: IStateType;
   effects: {
     login: Effect;
-    getCaptcha: Effect;
   };
   reducers: {
     changeLoginStatus: Reducer<IStateType>;
@@ -46,10 +45,11 @@ const Model: ModelType = {
       });
       yield put({
         type: 'user/saveCurrentUser',
-        payload: response.result.user,
-      })
+        payload: (response.result || {}).user,
+      });
       // Login successfully
       if (response.status === 200) {
+        console.log('token:' + response.result.token);
         setAccessToken(response.result.token);
         setAutz(response.result);
         reloadAuthorized();
@@ -71,10 +71,6 @@ const Model: ModelType = {
         }
         yield put(routerRedux.replace(redirect || '/'));
       }
-    },
-
-    *getCaptcha({ payload }, { call }) {
-      yield call(getFakeCaptcha, payload);
     },
   },
 

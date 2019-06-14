@@ -19,7 +19,8 @@ const codeMessage = {
   202: '一个请求已经进入后台排队（异步任务）。',
   204: '删除数据成功。',
   400: '发出的请求有错误，服务器没有进行新建或修改数据的操作。',
-  401: '用户没有权限（令牌、用户名、密码错误）。',
+  // 401: '用户没有权限（令牌、用户名、密码错误）。',
+  401: '未登录或登录已过期，请重新登录。',
   403: '用户得到授权，但是访问是被禁止的。',
   404: '发出的请求针对的是不存在的记录，服务器没有进行操作。',
   406: '请求的格式不可得。',
@@ -36,18 +37,17 @@ const codeMessage = {
  */
 const errorHandler = (error: ResponseError) => {
   const { response = {} as Response } = error;
-  // const errortext = codeMessage[response.status] || response.statusText;
+  const errortext = codeMessage[response.status] || response.statusText;
   const { status, url } = response;
 
-  // notification.error({
-  //   message: `请求错误 ${status}: ${url}`,
-  //   description: errortext,
-  // });
+  notification.error({
+    message: `请求错误 ${status}: ${url}`,
+    description: errortext,
+  });
   if (status === 401) {
     notification.error({
       message: '未登录或登录已过期，请重新登录。',
     });
-    message.error('未登录或登录已过期，请重新登录。');
     router.push('/user/login');
     return;
   }
@@ -59,16 +59,16 @@ const errorHandler = (error: ResponseError) => {
 const request = extend({
   errorHandler, // 默认错误处理
   credentials: 'include', // 默认请求是否带上cookie
-  headers: {
-    'access-token': getAccessToken(),
-  },
 });
 
 request.interceptors.request.use((url, options) => {
   return {
-    url: url.replace('/hsweb', ''),
+    // url: url.replace('/hsweb', ''),
     options: {
       ...options,
+      headers: {
+        'access-token': getAccessToken(),
+      },
       interceptors: true,
     },
   };

@@ -1,5 +1,3 @@
-import { router } from 'umi';
-
 //用户
 export class User {
   public readonly id: string;
@@ -110,16 +108,16 @@ export class Authentication {
 }
 
 export function getAccessToken(): string {
-  return localStorage.getItem('x-access-token') || new Date().getTime() + '';
+  return sessionStorage.getItem('x-access-token') || new Date().getTime() + '';
 }
 
 export function setAccessToken(token: string) {
-  localStorage.setItem('x-access-token', token);
+  sessionStorage.setItem('x-access-token', token);
 }
 
 export function getAutz(): Authentication | undefined {
   if (!window.top.__hsweb_autz) {
-    const store = localStorage.getItem('hsweb-autz');
+    const store = sessionStorage.getItem('hsweb-autz');
     if (store === null) {
       return undefined;
     }
@@ -132,7 +130,7 @@ export function getAutz(): Authentication | undefined {
 
 export function clearAutz() {
   window.top.__hsweb_autz = undefined;
-  localStorage.removeItem('hsweb-autz');
+  sessionStorage.removeItem('hsweb-autz');
 }
 
 export function setAutz(info: Authentication): Authentication {
@@ -170,5 +168,5 @@ export function getAuthority(str?: string): any {
 
 export function setAuthority(authority: string | string[]): void {
   const proAuthority = typeof authority === 'string' ? [authority] : authority;
-  return localStorage.setItem('antd-pro-authority', JSON.stringify(proAuthority));
+  return sessionStorage.setItem('antd-pro-authority', JSON.stringify(proAuthority));
 }
