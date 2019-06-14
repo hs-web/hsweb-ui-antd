@@ -7,7 +7,8 @@ import { formatMessage } from 'umi-plugin-react/locale';
 import Link from 'umi/link';
 import logo from '../assets/logo.svg';
 import styles from './UserLayout.less';
-import { MenuDataItem, getPageTitle, getMenuData, DefaultFooter } from '@ant-design/pro-layout';
+import { MenuDataItem, getPageTitle, getMenuData } from '@ant-design/pro-layout';
+import FooterView from '@/layouts/Footer';
 
 export interface UserLayoutProps extends ConnectProps {
   breadcrumbNameMap: { [path: string]: MenuDataItem };
@@ -53,7 +54,7 @@ const UserLayout: React.SFC<UserLayoutProps> = props => {
           </div>
           {children}
         </div>
-        <DefaultFooter />
+        <FooterView />
       </div>
     </DocumentTitle>
   );

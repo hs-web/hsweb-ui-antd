@@ -11,7 +11,6 @@ import React, { useState } from 'react';
 import logo from '../assets/logo.svg';
 import Authorized from '@/utils/Authorized';
 import { formatMessage } from 'umi-plugin-react/locale';
-import { isAntDesignPro } from '@/utils/utils';
 import {
   BasicLayout as ProLayoutComponents,
   BasicLayoutProps as ProLayoutComponentsProps,
@@ -19,6 +18,7 @@ import {
   Settings,
 } from '@ant-design/pro-layout';
 import Link from 'umi/link';
+import FooterView from './Footer';
 export interface BasicLayoutProps extends ProLayoutComponentsProps, ConnectProps {
   breadcrumbNameMap: {
     [path: string]: MenuDataItem;
@@ -42,28 +42,10 @@ const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] => {
 };
 
 const footerRender: BasicLayoutProps['footerRender'] = (_, defaultDom) => {
-  if (!isAntDesignPro()) {
-    return defaultDom;
-  }
-  return (
-    <>
-      {defaultDom}
-      <div
-        style={{
-          padding: '0px 24px 24px',
-          textAlign: 'center',
-        }}
-      >
-        <a href="https://www.netlify.com" target="_blank">
-          <img
-            src="https://www.netlify.com/img/global/badges/netlify-color-bg.svg"
-            width="82px"
-            alt="netlify logo"
-          />
-        </a>
-      </div>
-    </>
-  );
+  // if (!isAntDesignPro()) {
+  //   return defaultDom;
+  // }
+  return <FooterView />;
 };
 
 const BasicLayout: React.FC<BasicLayoutProps> = props => {
