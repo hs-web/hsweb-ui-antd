@@ -3,7 +3,7 @@ import { Dispatch } from 'redux';
 import { UserItem } from './data';
 import { connect } from 'dva';
 import { ColumnProps } from 'antd/lib/table';
-import { Divider, Table, Card } from 'antd';
+import { Divider, Table, Card, message } from 'antd';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import ConnectState from '@/models/connect';
 import styles from '../style.less';
@@ -21,6 +21,7 @@ interface UserState {
   saveVisible: boolean;
   settingVisible: boolean;
   searchParams: { [key: string]: string };
+  currentItem: UserItem;
 }
 @connect(({ users, loading }: ConnectState) => ({
   users,
@@ -31,6 +32,7 @@ class Users extends Component<UserProps, UserState> {
     saveVisible: false,
     settingVisible: false,
     searchParams: {},
+    currentItem: { id: '', name: '', username: '' },
   };
 
   columns: ColumnProps<UserItem>[] = [
@@ -45,6 +47,7 @@ class Users extends Component<UserProps, UserState> {
     {
       title: '是否启用',
       dataIndex: 'status',
+      render: text => (text === 1 ? '是' : '否'),
     },
     {
       title: '操作',
@@ -68,6 +71,7 @@ class Users extends Component<UserProps, UserState> {
   edit = (record: UserItem) => {
     this.setState({
       saveVisible: true,
+      currentItem: record,
     });
   };
 
@@ -77,17 +81,31 @@ class Users extends Component<UserProps, UserState> {
     });
   };
 
+  save = (record: UserItem) => {
+    console.log(record, '保存的数据');
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'users/add',
+      payload: record,
+      callback: (response: any) => {
+        if (response.status === 200) {
+          message.success('保存成功');
+        }
+      },
+    });
+  };
+
   render() {
     const {
       users: { result },
       loading,
     } = this.props;
-    const { saveVisible, settingVisible } = this.state;
+    const { saveVisible, settingVisible, currentItem } = this.state;
     return (
       <PageHeaderWrapper title="用户管理">
         <Card bordered={false}>
           <div className={styles.tableListForm}>
-            <Search />
+            <Search handleModalVisible={() => this.setState({ saveVisible: true })} />
           </div>
           <Table
             loading={loading}
@@ -96,7 +114,13 @@ class Users extends Component<UserProps, UserState> {
             rowKey={item => item.id}
           />
         </Card>
-        {saveVisible && <Save handleSaveVisible={() => this.setState({ saveVisible: false })} />}
+        {saveVisible && (
+          <Save
+            handleSaveVisible={() => this.setState({ saveVisible: false })}
+            handleSave={(item: UserItem) => this.save(item)}
+            currentItem={currentItem}
+          />
+        )}
         {settingVisible && (
           <SettingPermission settingVisible={() => this.setState({ settingVisible: false })} />
         )}
