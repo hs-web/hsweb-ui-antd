@@ -1,8 +1,8 @@
 export interface UserItem {
   id: string;
-  name: string;
+  name?: string;
   status?: number;
-  username: string;
+  username?: string;
   remark?: string;
   password?: string;
   createTime?: number;

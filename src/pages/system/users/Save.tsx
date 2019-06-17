@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { Form, Modal, Input, Table, message, Row, Col } from 'antd';
+import { Form, Modal, Input, Table, message, Row, Col, Spin } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import React from 'react';
 import styles from '../style.less';
@@ -18,7 +18,6 @@ interface SaveProps extends FormComponentProps {
 
 interface SaveState {
   roleList: RoleItem[];
-  checkedRole: string[] | number[];
   loading: boolean;
   item: UserItem;
   selectedRowKeys: any;
@@ -27,9 +26,8 @@ interface SaveState {
 class Save extends Component<SaveProps, SaveState> {
   state: SaveState = {
     roleList: [],
-    checkedRole: [],
     loading: false,
-    item: { id: '', username: '', name: '' },
+    item: { id: '' },
     selectedRowKeys: [],
   };
 
@@ -44,14 +42,14 @@ class Save extends Component<SaveProps, SaveState> {
   roleSelection = {
     onChange: (selectedRowKeys: string[] | number[], selectedRows: any[]) => {
       this.setState({
-        checkedRole: selectedRowKeys,
+        selectedRowKeys,
       });
-      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+      // console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
     },
-    getCheckboxProps: record => ({
-      disabled: record.name === 'Disabled User', // Column configuration not to be checked
-      name: record.name,
-    }),
+    // getCheckboxProps: record => ({
+    //     disabled: record.name === 'Disabled User', // Column configuration not to be checked
+    //     name: record.name,
+    // }),
   };
 
   componentDidMount() {
@@ -77,10 +75,15 @@ class Save extends Component<SaveProps, SaveState> {
           payload: currentItem.id,
           callback: (response: any) => {
             this.setState({
+              loading: true,
               item: response.result,
               selectedRowKeys: response.result.roles,
             });
           },
+        });
+      } else {
+        this.setState({
+          loading: true,
         });
       }
     } else {
@@ -90,82 +93,89 @@ class Save extends Component<SaveProps, SaveState> {
 
   handleSave = () => {
     const { form, handleSave } = this.props;
-    const { checkedRole } = this.state;
+    const { selectedRowKeys } = this.state;
     form.validateFields((err, fieldValue) => {
       if (err) return;
-      handleSave({ ...fieldValue, roles: checkedRole }); //保存数据
+      handleSave({ ...fieldValue, roles: selectedRowKeys }); //保存数据
     });
-  };
-
-  closeSaveModal = () => {
-    const { handleSaveVisible } = this.props;
-    //调用父组建更改Modal状态
-    handleSaveVisible();
   };
 
   render() {
     const {
       form: { getFieldDecorator },
+      currentItem,
+      handleSaveVisible,
     } = this.props;
     const { roleList, loading, item, selectedRowKeys } = this.state;
     return (
       <Modal
-        title="编辑用户"
+        title={currentItem.id !== '' ? '编辑用户' : '新建用户'}
         className={styles.standardListForm}
         width={640}
         destroyOnClose
         visible
-        onCancel={this.closeSaveModal}
+        onCancel={handleSaveVisible}
         onOk={this.handleSave}
       >
-        <Form layout="vertical">
-          <Row gutter={4}>
-            <Col>
-              <Form.Item key="name" label="姓名" labelCol={{ span: 2 }} wrapperCol={{ span: 22 }}>
-                {getFieldDecorator('name', {
-                  initialValue: item.name,
-                })(<Input placeholder="请输入姓名" />)}
+        {loading === true ? (
+          <div>
+            <Form layout="vertical">
+              <Row gutter={4}>
+                <Col>
+                  <Form.Item
+                    key="name"
+                    label="姓名"
+                    labelCol={{ span: 2 }}
+                    wrapperCol={{ span: 22 }}
+                  >
+                    {getFieldDecorator('name', {
+                      initialValue: item.name,
+                    })(<Input placeholder="请输入姓名" />)}
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={4}>
+                <Col span={11}>
+                  <Form.Item
+                    key="username"
+                    label="用户名"
+                    labelCol={{ span: 6 }}
+                    wrapperCol={{ span: 18 }}
+                  >
+                    {getFieldDecorator('username', {
+                      initialValue: item.username,
+                    })(<Input placeholder="请输入用户名" />)}
+                  </Form.Item>
+                </Col>
+                <Col span={11} offset={2}>
+                  <Form.Item
+                    key="password"
+                    label="密码"
+                    labelCol={{ span: 6 }}
+                    wrapperCol={{ span: 18 }}
+                  >
+                    {getFieldDecorator('password', {
+                      initialValue: '**********',
+                    })(<Input placeholder="*********" />)}
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Form.Item key="remark" label="备注" labelCol={{ span: 2 }} wrapperCol={{ span: 22 }}>
+                {getFieldDecorator('remark', {
+                  initialValue: item.remark,
+                })(<Input.TextArea rows={2} />)}
               </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={4}>
-            <Col span={11}>
-              <Form.Item
-                key="username"
-                label="用户名"
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 18 }}
-              >
-                {getFieldDecorator('username', {
-                  initialValue: item.username,
-                })(<Input placeholder="请输入用户名" />)}
-              </Form.Item>
-            </Col>
-            <Col span={11} offset={2}>
-              <Form.Item
-                key="password"
-                label="密码"
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 18 }}
-              >
-                {getFieldDecorator('password', {
-                  initialValue: '**********',
-                })(<Input placeholder="*********" />)}
-              </Form.Item>
-            </Col>
-          </Row>
-          <Form.Item key="remark" label="备注" labelCol={{ span: 2 }} wrapperCol={{ span: 22 }}>
-            {getFieldDecorator('remark', {
-              initialValue: item.remark,
-            })(<Input.TextArea rows={2} />)}
-          </Form.Item>
-        </Form>
-        <Table
-          rowSelection={{ ...this.roleSelection, selectedRowKeys }}
-          columns={this.columns}
-          dataSource={roleList}
-          rowKey={record => record.id}
-        />
+            </Form>
+            <Table
+              rowSelection={{ ...this.roleSelection, selectedRowKeys }}
+              columns={this.columns}
+              dataSource={roleList}
+              rowKey={record => record.id}
+            />
+          </div>
+        ) : (
+          <Spin style={{ marginLeft: 250 }} tip="Loading..." />
+        )}
       </Modal>
     );
   }

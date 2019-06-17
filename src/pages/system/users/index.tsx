@@ -32,7 +32,7 @@ class Users extends Component<UserProps, UserState> {
     saveVisible: false,
     settingVisible: false,
     searchParams: {},
-    currentItem: { id: '', name: '', username: '' },
+    currentItem: { id: '' },
   };
 
   columns: ColumnProps<UserItem>[] = [
@@ -116,7 +116,7 @@ class Users extends Component<UserProps, UserState> {
         </Card>
         {saveVisible && (
           <Save
-            handleSaveVisible={() => this.setState({ saveVisible: false })}
+            handleSaveVisible={() => this.setState({ saveVisible: false, currentItem: { id: '' } })}
             handleSave={(item: UserItem) => this.save(item)}
             currentItem={currentItem}
           />
