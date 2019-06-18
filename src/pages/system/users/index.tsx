@@ -78,6 +78,7 @@ class Users extends Component<UserProps, UserState> {
   setting = (record: UserItem) => {
     this.setState({
       settingVisible: true,
+      currentItem: record,
     });
   };
 
@@ -122,7 +123,11 @@ class Users extends Component<UserProps, UserState> {
           />
         )}
         {settingVisible && (
-          <SettingPermission settingVisible={() => this.setState({ settingVisible: false })} />
+          <SettingPermission
+            settingVisible={() => this.setState({ settingVisible: false })}
+            settingType={'user'}
+            settingId={currentItem.id}
+          />
         )}
       </PageHeaderWrapper>
     );
