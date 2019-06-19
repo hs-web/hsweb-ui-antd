@@ -1,20 +1,18 @@
 export class AutzSetting {
-  public id: string;
-  //设置给谁
-  public settingFor: string;
-  //设置对象类型：user(用户),role(角色)
   public type: string;
-  public status: number;
-  public details: Permission[];
-  public menus: Menu[];
+  public settingFor: string;
+  public priority: string;
+  public merge: boolean;
+  public menus: Menu[] | any[] | never[];
+  public details: Permission[] | any[] | never[];
 
-  constructor({ id, settingFor, status, type, details, menus }: AutzSetting) {
-    this.id = id;
-    this.settingFor = settingFor;
-    this.status = status;
+  constructor({ type, settingFor, priority, merge, menus, details }: AutzSetting) {
     this.type = type;
-    this.details = details;
+    this.settingFor = settingFor;
+    this.priority = priority;
+    this.merge = merge;
     this.menus = menus;
+    this.details = details;
   }
 }
 
@@ -26,7 +24,7 @@ export class Menu {
   public settingId: string;
   public status: number;
 
-  constructor({ id, menuId, parentId, path, settingId, status }: Menus) {
+  constructor({ id, menuId, parentId, path, settingId, status }: Menu) {
     this.id = id;
     this.menuId = menuId;
     this.parentId = parentId;
@@ -37,31 +35,16 @@ export class Menu {
 }
 
 export class Permission {
-  public id: string;
-  public merge: boolean;
   public permissionId: string;
-  public priority: number;
-  public settingId: string;
-  public status: number;
+  public priority: string;
+  public merge: boolean;
   public dataAccesses: string[];
   public actions: string[];
 
-  constructor({
-    id,
-    merge,
-    permissionId,
-    priority,
-    settingId,
-    status,
-    dataAccesses,
-    actions,
-  }: Permission) {
-    this.id = id;
+  constructor({ merge, permissionId, priority, dataAccesses, actions }: Permission) {
     this.merge = merge;
     this.permissionId = permissionId;
     this.priority = priority;
-    this.settingId = settingId;
-    this.status = status;
     this.dataAccesses = dataAccesses;
     this.actions = actions;
   }

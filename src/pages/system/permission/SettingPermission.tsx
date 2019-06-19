@@ -5,7 +5,7 @@ import { Dispatch } from 'redux';
 import { connect } from 'dva';
 import { ConnectState } from '@/models/connect';
 import { PermissionModelState } from '@/models/permission';
-import { any } from 'prop-types';
+import { AutzSetting, Permission } from './AutzSetting';
 
 interface SettingPermissionProps {
   dispatch?: Dispatch<any>;
@@ -58,17 +58,20 @@ class SettingPermission extends Component<SettingPermissionProps, SettingPermiss
         },
         callback: (response: any) => {
           if (response.status === 200) {
-            const permissions = response.result.details;
-            const permissionArray: string[] = [];
-            permissions
-              .map(item => item.actions.map(action => `${item.permissionId}:${action}`))
-              .forEach((element: string[]) => {
-                permissionArray.push(...element);
+            const result = response.result;
+            if (result) {
+              const permissions = result.details;
+              const permissionArray: string[] = [];
+              permissions
+                .map(item => item.actions.map(action => `${item.permissionId}:${action}`))
+                .forEach((element: string[]) => {
+                  permissionArray.push(...element);
+                });
+              this.setState({
+                checkedKeys: permissionArray,
               });
-            this.setState({
-              checkedKeys: permissionArray,
-            });
-            console.log(permissionArray, 'list');
+              console.log(permissionArray, 'list');
+            }
           }
         },
       });
@@ -128,6 +131,56 @@ class SettingPermission extends Component<SettingPermissionProps, SettingPermiss
 
   save = () => {
     message.success('保存数据');
+    const { settingType, settingId, dispatch } = this.props;
+    if (!dispatch) return;
+    //将已经选择的权限格式化成后台需要的数据类型
+    const details = this.resetCheckedPermission();
+    const autzSetData = new AutzSetting({
+      type: settingType,
+      settingFor: settingId,
+      priority: '10',
+      menus: [],
+      details: details,
+      merge: true,
+    });
+    dispatch({
+      type: 'permission/setAutzData',
+      payload: autzSetData,
+      callback: (response: any) => {
+        console.log(response, 'autz');
+      },
+    });
+  };
+
+  resetCheckedPermission = (): Permission[] => {
+    const { checkedKeys } = this.state;
+    const details: any[] | Permission[] = [];
+    const detailMap = new Map();
+    checkedKeys.forEach((item: string) => {
+      if (item.indexOf(':') < 0) {
+        detailMap.set(
+          item,
+          new Permission({
+            permissionId: item,
+            priority: '10',
+            merge: true,
+            dataAccesses: [],
+            actions: [],
+          }),
+        );
+      }
+    });
+    checkedKeys.forEach((item: string) => {
+      if (item.indexOf(':') > -1) {
+        const action = item.split(':');
+        detailMap.get(action[0]).actions.push(action[1]);
+      }
+    });
+    detailMap.forEach(element => {
+      details.push(element);
+    });
+    console.log(details, 'ls');
+    return details;
   };
 
   render() {

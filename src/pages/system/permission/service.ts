@@ -1,5 +1,6 @@
 import request from '@/utils/request';
 import { PermissionItem } from './data';
+import { AutzSetting } from './AutzSetting';
 
 export async function list(params: any) {
   console.log(params, 'ass');
@@ -31,5 +32,12 @@ export async function update(params: PermissionItem) {
 export async function autzSetting(params: { settingId: string; settingType: string }) {
   return request(`hsweb/autz-setting/${params.settingType}/${params.settingId}`, {
     method: 'GET',
+  });
+}
+
+export async function setAutz(params: AutzSetting) {
+  return request(`hsweb/autz-setting`, {
+    method: 'PATCH',
+    data: params,
   });
 }
