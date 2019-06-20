@@ -11,6 +11,7 @@ import Search from './Search';
 import Save from './Save';
 import SettingPermission from '../permission/SettingPermission';
 import { UsersModelState } from '@/models/users';
+import SettingAutz from '@/components/SettingAutz';
 
 interface UserProps {
   dispatch: Dispatch<any>;
@@ -123,11 +124,12 @@ class Users extends Component<UserProps, UserState> {
           />
         )}
         {settingVisible && (
-          <SettingPermission
-            settingVisible={() => this.setState({ settingVisible: false })}
-            settingType={'user'}
-            settingId={currentItem.id}
-          />
+          <SettingAutz />
+          // <SettingPermission
+          //   settingVisible={() => this.setState({ settingVisible: false })}
+          //   settingType={'user'}
+          //   settingId={currentItem.id}
+          // />
         )}
       </PageHeaderWrapper>
     );

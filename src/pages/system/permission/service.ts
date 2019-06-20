@@ -23,20 +23,20 @@ export async function add(params: PermissionItem) {
   });
 }
 export async function update(params: PermissionItem) {
-  return request(`hsweb/permission`, {
+  return request(`/hsweb/permission`, {
     method: 'PATCH',
     data: params,
   });
 }
 
 export async function autzSetting(params: { settingId: string; settingType: string }) {
-  return request(`hsweb/autz-setting/${params.settingType}/${params.settingId}`, {
+  return request(`/hsweb/autz-setting/${params.settingType}/${params.settingId}`, {
     method: 'GET',
   });
 }
 
 export async function setAutz(params: AutzSetting) {
-  return request(`hsweb/autz-setting`, {
+  return request(`/hsweb/autz-setting`, {
     method: 'PATCH',
     data: params,
   });
