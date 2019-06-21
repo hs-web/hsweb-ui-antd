@@ -113,7 +113,6 @@ class SettingPermission extends Component<SettingPermissionProps, SettingPermiss
   formatePermission = () => {
     const { permission } = this.props;
     const data = permission.result.data;
-    console.log(permission, 'per');
     return data.map(item => {
       const actionList = item.actions.map(action => {
         return {

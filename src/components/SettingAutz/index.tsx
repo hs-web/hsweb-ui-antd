@@ -1,37 +1,95 @@
 import React, { Component } from 'react';
-import {
-  Modal,
-  Row,
-  Col,
-  message,
-  Affix,
-  Anchor,
-  Collapse,
-  Select,
-  Icon,
-  Switch,
-  Divider,
-  Checkbox,
-  Radio,
-  Button,
-} from 'antd';
+import { Modal, Row, Col, message, Affix, Anchor, Collapse, Switch, Divider, Checkbox } from 'antd';
+import ConnectState from '@/models/connect';
+import { connect } from 'dva';
+import { Dispatch } from 'redux';
+import { PermissionModelState } from '@/models/permission';
+import { PermissionItem, PermissionAction } from '@/pages/system/permission/data';
 const { Link } = Anchor;
 const { Panel } = Collapse;
-const { Option } = Select;
 
-interface SettingAutzProps {}
+interface SettingAutzProps {
+  dispatch?: Dispatch<any>;
+  settingVisible: () => void;
+  loading?: boolean;
+  permission?: PermissionModelState;
+  settingType: string;
+  settingId: string;
+}
 
 interface SettingAutzState {
   modalVisible: boolean;
+  checkedPermission: string[] | any[] | never[];
 }
-
+@connect(({ permission, loading }: ConnectState) => ({
+  permission,
+  loading: loading.models.permission,
+}))
 class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
   state: SettingAutzState = {
     modalVisible: true,
+    checkedPermission: ['role', 'user', 'autz-setting'],
   };
+
+  componentWillMount() {
+    const { dispatch } = this.props;
+    if (!dispatch) return;
+    dispatch({
+      type: 'permission/fetch',
+      payload: {
+        paging: 'false',
+      },
+    });
+  }
+
+  renderPanle = (permissionData: PermissionItem[]) =>
+    permissionData.map(item => {
+      return (
+        <Panel
+          header={item.name}
+          key={item.id}
+          id={item.id}
+          showArrow={false}
+          extra={
+            <div>
+              <Switch checkedChildren="启用" unCheckedChildren="禁用" defaultChecked />
+              <Divider type="vertical" />
+              <a href="#">数据权限</a>
+              <Divider type="vertical" />
+              <a href="#">字段权限</a>
+              <h2 hidden>{item.name}</h2>
+            </div>
+          }
+        >
+          <div>
+            <Checkbox.Group>
+              <Row>
+                <Col span={6} style={{ height: 40 }}>
+                  <Checkbox value="ALL">全选</Checkbox>
+                </Col>
+                {item.actions.map((action: PermissionAction) => {
+                  return (
+                    <Col span={6} style={{ height: 40 }} key={action.action}>
+                      <Checkbox value={action.action} style={{ width: 200 }}>
+                        {action.describe}
+                      </Checkbox>
+                    </Col>
+                  );
+                })}
+              </Row>
+            </Checkbox.Group>
+          </div>
+        </Panel>
+      );
+    });
+
+  renderLink = (permissionData: PermissionItem[]) =>
+    permissionData.map(item => <Link href={'#' + item.id} title={item.name} key={item.id} />);
 
   render() {
     const { modalVisible } = this.state;
+    const { permission } = this.props;
+    const permissionData = permission.result.data;
     return (
       <Modal
         title="用户赋权"
@@ -41,174 +99,19 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
         onOk={() => message.success('保存成功')}
       >
         <Row>
-          <Col span={18}>
-            <Collapse
-              activeKey={['role', 'user']}
-              // defaultActiveKey={['1']}
-              onChange={() => console.log('ssss')}
-              // expandIconPosition={'right'}
-            >
-              <Panel
-                header="用户管理"
-                key="user"
-                extra={
-                  <div>
-                    <Switch checkedChildren="启用" unCheckedChildren="禁用" defaultChecked />
-                    <Divider type="vertical" />
-                    <a href="#">数据权限</a>
-                    <Divider type="vertical" />
-                    <a href="#">字段权限</a>
-                  </div>
-                }
-              >
-                <div>
-                  <Checkbox.Group>
-                    <Row>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="ALL">全选</Checkbox>
-                        <Divider type="vertical" />
-                      </Col>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="A" style={{ width: 200 }}>
-                          新增
-                        </Checkbox>
-                      </Col>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="B" style={{ width: 200 }}>
-                          修改
-                        </Checkbox>
-                      </Col>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="C" style={{ width: 200 }}>
-                          删除
-                        </Checkbox>
-                      </Col>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="D" style={{ width: 200 }}>
-                          查询列表
-                        </Checkbox>
-                      </Col>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="E" style={{ width: 200 }}>
-                          查询详情
-                        </Checkbox>
-                      </Col>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="C">删除</Checkbox>
-                      </Col>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="D">查询列表</Checkbox>
-                      </Col>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="E">查询详情</Checkbox>
-                      </Col>
-                    </Row>
-                  </Checkbox.Group>
-                </div>
-              </Panel>
-              <Panel
-                header="权限管理"
-                key="permission"
-                extra={
-                  <div>
-                    <Switch checkedChildren="启用" unCheckedChildren="禁用" />
-                    <Divider type="vertical" />
-                    <a href="#">数据权限</a>
-                    <Divider type="vertical" />
-                    <a href="#">字段权限</a>
-                  </div>
-                }
-              >
-                <div>
-                  {/* <div style={{ borderBottom: '1px solid #E9E9E9' }}>
-                                        <Radio.Group onChange={() => { }} value={1}>
-                                            <Radio value={1}>全选</Radio>
-                                            <Radio value={2}>反选</Radio>
-                                        </Radio.Group>
-                                    </div>
-                                    <br /> */}
-                  <Checkbox.Group
-                    options={['全选', '修改', '删除', '查询']}
-                    value={['全选', '删除', '查询']}
-                    onChange={() => {}}
-                  />
-                </div>
-              </Panel>
-              <Panel
-                header="角色管理"
-                key="role"
-                extra={
-                  <div>
-                    <Switch checkedChildren="启用" unCheckedChildren="禁用" defaultChecked />
-                    <Divider type="vertical" />
-                    <a href="#">数据权限</a>
-                    <Divider type="vertical" />
-                    <a href="#">字段权限</a>
-                  </div>
-                }
-              >
-                <div>
-                  <Checkbox.Group>
-                    <Row>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="ALL">全选</Checkbox>
-                        <Divider type="vertical" />
-                      </Col>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="A" style={{ width: 200 }}>
-                          新增
-                        </Checkbox>
-                      </Col>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="B" style={{ width: 200 }}>
-                          修改
-                        </Checkbox>
-                      </Col>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="C" style={{ width: 200 }}>
-                          删除
-                        </Checkbox>
-                      </Col>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="D" style={{ width: 200 }}>
-                          查询列表
-                        </Checkbox>
-                      </Col>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="E" style={{ width: 200 }}>
-                          查询详情
-                        </Checkbox>
-                      </Col>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="C">删除</Checkbox>
-                      </Col>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="D">查询列表</Checkbox>
-                      </Col>
-                      <Col span={6} style={{ height: 40 }}>
-                        <Checkbox value="E">查询详情</Checkbox>
-                      </Col>
-                    </Row>
-                  </Checkbox.Group>
-                </div>
-              </Panel>
+          <Col span={18} style={{ height: 600, overflow: 'auto' }}>
+            <Collapse activeKey={permissionData.map(item => item.id)}>
+              {this.renderPanle(permissionData)}
             </Collapse>
           </Col>
-          <Col span={4} offset={2}>
+          <Col span={4} offset={2} style={{ height: 600, overflow: 'auto' }}>
             <Affix>
-              <Anchor>
-                <Link href="#components-anchor-demo-basic" title="用户管理" />
-                <Link href="#components-anchor-demo-static" title="角色管理" />
-                <Link href="#API" title="系统设置">
-                  <Link href="#Anchor-Props" title="权限管理" />
-                  <Link href="#Link-Props" title="菜单管理" />
-                </Link>
-              </Anchor>
+              <Anchor>{this.renderLink(permissionData)}</Anchor>
             </Affix>
           </Col>
         </Row>
       </Modal>
     );
   }
-} //天高鸿苑 3-10-3
+}
 export default SettingAutz;

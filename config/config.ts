@@ -83,7 +83,7 @@ const uglifyJSOptions =
     : {};
 export default {
   // add for transfer to umi
-  history: 'hash',
+  history: 'browser',
   base: '/dist/',
   publicPath: '/dist/',
   plugins,
