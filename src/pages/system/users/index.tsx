@@ -124,7 +124,11 @@ class Users extends Component<UserProps, UserState> {
           />
         )}
         {settingVisible && (
-          <SettingAutz />
+          <SettingAutz
+            settingVisible={() => this.setState({ settingVisible: false })}
+            settingId={currentItem.id}
+            settingType={'user'}
+          />
           // <SettingPermission
           //   settingVisible={() => this.setState({ settingVisible: false })}
           //   settingType={'user'}

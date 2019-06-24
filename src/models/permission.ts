@@ -33,7 +33,6 @@ const PermissionModel: PermissionModel = {
   effects: {
     *fetch({ payload, callback }, { call, put }) {
       const response = yield call(list, payload);
-      console.log(response, 'respon');
       yield put({
         type: 'save',
         payload: response.result,

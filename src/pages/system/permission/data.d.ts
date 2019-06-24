@@ -1,3 +1,5 @@
+import Permission from '.';
+
 export class PermissionItem {
   id: string;
   name: string;
@@ -5,6 +7,8 @@ export class PermissionItem {
   type: string;
   actions: PermissionAction[];
   optionalFields: { name: string }[];
+  open?: boolean;
+  checkedAction?: string[];
 }
 
 export interface PermissionListData {
