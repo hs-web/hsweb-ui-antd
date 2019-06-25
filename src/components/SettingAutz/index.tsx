@@ -118,22 +118,44 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
 
   checkAllActions = (item: PermissionItem, action: string) => {
     const { permissionData } = this.state;
-    if (action === 'all' && item.checkedAction) {
-      if (item.checkedAction.some(e => e === 'all')) {
-        //todo
-        item.checkedAction = item.checkedAction.filter(e => e !== 'all');
-        console.log('tr');
+    let checkedActions = item.checkedAction || [];
+    // [ad,,get]
+    if (item.checkedAction) {
+      if (action === 'all') {
+        if (item.checkedAction.some(e => e === 'all')) {
+          checkedActions = [];
+        } else {
+          //todo
+          const actions = item.actions.map(e => e.action);
+          actions.push('all');
+          checkedActions = actions;
+        }
       } else {
-        item.checkedAction = [];
-        console.log('false');
+        if (item.checkedAction.some(e => e === action)) {
+          checkedActions = item.checkedAction.filter(e => e !== action);
+        } else {
+          checkedActions.push(action);
+        }
+        if (checkedActions.length === item.actions.map(e => e.action).length) {
+          checkedActions.push('all');
+        } else {
+          console.log('数量不等');
+          checkedActions = item.checkedAction.filter(e => e !== 'all');
+          console.log(item.checkedAction, 'actions');
+        }
       }
+      item.checkedAction = checkedActions;
     }
-    permissionData.forEach(data => {
-      if (data.id === item.id) {
-        console.log(data, item);
-      }
+
+    // permissionData.forEach(data => {
+    //   if (data.id === item.id) {
+    //     console.log(data, item);
+    //   }
+    // });
+    this.setState({
+      permissionData,
     });
-    console.log(item, action);
+    // console.log(item, action);
   };
 
   renderPanle = (permissionData: PermissionItem[]) =>
@@ -171,7 +193,11 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
                 {item.actions.map((action: PermissionAction) => {
                   return (
                     <Col span={6} style={{ height: 40 }} key={action.action}>
-                      <Checkbox value={action.action} style={{ width: 200 }} onChange={() => {}}>
+                      <Checkbox
+                        value={action.action}
+                        style={{ width: 200 }}
+                        onChange={() => this.checkAllActions(item, action.action)}
+                      >
                         {action.describe}
                       </Checkbox>
                     </Col>

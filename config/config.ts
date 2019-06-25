@@ -250,7 +250,7 @@ export default {
   },
   proxy: {
     '/hsweb': {
-      target: 'http://localhost:8089/',
+      target: 'http://hsweb.zuaker.com/',
       changeOrigin: true,
       pathRewrite: {
         '^/hsweb': '/',
