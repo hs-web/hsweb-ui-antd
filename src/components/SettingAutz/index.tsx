@@ -120,9 +120,8 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
     permissionData.map(item => {
       if (item.id === id) {
         item.checkedAction = checkedList;
-
       }
-    })
+    });
     this.setState({
       permissionData,
       // checkedList,
@@ -179,24 +178,36 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
             <Row>
               <Col span={6} style={{ height: 40 }}>
                 <Checkbox
-                  indeterminate={!!(item.checkedAction || []).length && (item.checkedAction || []).length < item.actions.map(e => e.action).length}
-                  onChange={(e) => this.onCheckAllChange(e, item.id)}
-                  checked={(item.checkedAction || []).length === item.actions.map(e => e.action).length}
+                  indeterminate={
+                    !!(item.checkedAction || []).length &&
+                    (item.checkedAction || []).length < item.actions.map(e => e.action).length
+                  }
+                  onChange={e => this.onCheckAllChange(e, item.id)}
+                  checked={
+                    (item.checkedAction || []).length === item.actions.map(e => e.action).length
+                  }
                 >
                   全 选
                 </Checkbox>
               </Col>
               <Divider />
-              <Checkbox.Group name={item.id} value={item.checkedAction} options={item.actions.map(e => {
-                return { 'value': e.action, 'label': <span style={{ marginRight: 30 }}>{e.describe}</span> }
-              })} onChange={(checkedList: string[] | any[]) => this.onChange(checkedList, item.id)} />
-
+              <Checkbox.Group
+                name={item.id}
+                value={item.checkedAction}
+                options={item.actions.map(e => {
+                  return {
+                    value: e.action,
+                    label: <span style={{ marginRight: 30 }}>{e.describe}</span>,
+                  };
+                })}
+                onChange={(checkedList: string[] | any[]) => this.onChange(checkedList, item.id)}
+              />
             </Row>
           </div>
         </Panel>
       );
     });
-  }
+  };
 
   renderLink = (permissionData: PermissionItem[]) =>
     permissionData.map(item => <Link href={'#' + item.id} title={item.name} key={item.id} />);
