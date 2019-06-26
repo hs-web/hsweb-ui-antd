@@ -8,7 +8,8 @@ export class PermissionItem {
   actions: PermissionAction[];
   optionalFields: { name: string }[];
   open?: boolean;
-  checkedAction?: string[];
+  checkedAction: string[];
+  checkAll: boolean;
 }
 
 export interface PermissionListData {

@@ -6,7 +6,6 @@ import { Dispatch } from 'redux';
 import { PermissionModelState } from '@/models/permission';
 import { PermissionItem, PermissionAction } from '@/pages/system/permission/data';
 import { CurrentPermission } from './data';
-import { toUnicode } from 'punycode';
 const { Link } = Anchor;
 const { Panel } = Collapse;
 
@@ -25,6 +24,8 @@ interface SettingAutzState {
   checkedPermission: string[] | any[] | never[];
   permissionData: PermissionItem[];
   currentPermission: CurrentPermission | undefined;
+  checkAll: boolean;
+  indeterminate: boolean;
 }
 @connect(({ permission, loading }: ConnectState) => ({
   permission,
@@ -37,6 +38,8 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
     checkedPermission: [],
     permissionData: [], //全部的权限
     currentPermission: undefined, //当前用户的权限
+    checkAll: false,
+    indeterminate: true,
   };
 
   componentWillMount() {
@@ -48,7 +51,6 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
         paging: 'false',
       },
     });
-    console.log(settingId, 'id');
     //获取已经选择的节点
     if (settingId) {
       dispatch({
@@ -81,9 +83,6 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
         if (activeKey.indexOf(item.id) > -1) {
           item.open = true;
           if (current) {
-            if (current.actions.length === item.actions.map(e => e.action).length) {
-              current.actions.push('all');
-            }
             item.checkedAction = current.actions;
           }
         } else {
@@ -116,50 +115,44 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
     });
   };
 
-  checkAllActions = (item: PermissionItem, action: string) => {
+  onChange = (checkedList: string[], id: string) => {
     const { permissionData } = this.state;
-    let checkedActions = item.checkedAction || [];
-    // [ad,,get]
-    if (item.checkedAction) {
-      if (action === 'all') {
-        if (item.checkedAction.some(e => e === 'all')) {
-          checkedActions = [];
-        } else {
-          //todo
-          const actions = item.actions.map(e => e.action);
-          actions.push('all');
-          checkedActions = actions;
-        }
-      } else {
-        if (item.checkedAction.some(e => e === action)) {
-          checkedActions = item.checkedAction.filter(e => e !== action);
-        } else {
-          checkedActions.push(action);
-        }
-        if (checkedActions.length === item.actions.map(e => e.action).length) {
-          checkedActions.push('all');
-        } else {
-          console.log('数量不等');
-          checkedActions = item.checkedAction.filter(e => e !== 'all');
-          console.log(item.checkedAction, 'actions');
-        }
-      }
-      item.checkedAction = checkedActions;
-    }
+    permissionData.map(item => {
+      if (item.id === id) {
+        item.checkedAction = checkedList;
 
-    // permissionData.forEach(data => {
-    //   if (data.id === item.id) {
-    //     console.log(data, item);
-    //   }
-    // });
+      }
+    })
     this.setState({
       permissionData,
+      // checkedList,
+      // indeterminate: !!checkedList.length && checkedList.length < plainOptions.length,
+      // checkAll: checkedList.length === plainOptions.length,
     });
-    // console.log(item, action);
   };
 
-  renderPanle = (permissionData: PermissionItem[]) =>
+  onCheckAllChange = (e, id: string) => {
+    const { permissionData } = this.state;
     permissionData.map(item => {
+      if (item.id === id) {
+        if (e.target.checked) {
+          item.checkedAction = item.actions.map(e => e.action);
+        } else {
+          item.checkedAction = [];
+        }
+      }
+    });
+
+    this.setState({
+      permissionData,
+      // checkedList: e.target.checked ? plainOptions.map(e => e.value) : [],
+      // indeterminate: false,
+      // checkAll: e.target.checked,
+    });
+  };
+
+  renderPanle = (permissionData: PermissionItem[]) => {
+    return permissionData.map(item => {
       return (
         <Panel
           header={item.name}
@@ -183,32 +176,27 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
           }
         >
           <div>
-            <Checkbox.Group value={item.checkedAction}>
-              <Row>
-                <Col span={6} style={{ height: 40 }}>
-                  <Checkbox value={'all'} onChange={() => this.checkAllActions(item, 'all')}>
-                    全选
-                  </Checkbox>
-                </Col>
-                {item.actions.map((action: PermissionAction) => {
-                  return (
-                    <Col span={6} style={{ height: 40 }} key={action.action}>
-                      <Checkbox
-                        value={action.action}
-                        style={{ width: 200 }}
-                        onChange={() => this.checkAllActions(item, action.action)}
-                      >
-                        {action.describe}
-                      </Checkbox>
-                    </Col>
-                  );
-                })}
-              </Row>
-            </Checkbox.Group>
+            <Row>
+              <Col span={6} style={{ height: 40 }}>
+                <Checkbox
+                  indeterminate={!!(item.checkedAction || []).length && (item.checkedAction || []).length < item.actions.map(e => e.action).length}
+                  onChange={(e) => this.onCheckAllChange(e, item.id)}
+                  checked={(item.checkedAction || []).length === item.actions.map(e => e.action).length}
+                >
+                  全 选
+                </Checkbox>
+              </Col>
+              <Divider />
+              <Checkbox.Group name={item.id} value={item.checkedAction} options={item.actions.map(e => {
+                return { 'value': e.action, 'label': <span style={{ marginRight: 30 }}>{e.describe}</span> }
+              })} onChange={(checkedList: string[] | any[]) => this.onChange(checkedList, item.id)} />
+
+            </Row>
           </div>
         </Panel>
       );
     });
+  }
 
   renderLink = (permissionData: PermissionItem[]) =>
     permissionData.map(item => <Link href={'#' + item.id} title={item.name} key={item.id} />);

@@ -3,7 +3,6 @@ import { PermissionItem } from './data';
 import { AutzSetting } from './AutzSetting';
 
 export async function list(params: any) {
-  console.log(params, 'ass');
   return request(`/hsweb/permission`, {
     method: 'GET',
     params: params,
