@@ -10,7 +10,7 @@ import { PageHeaderWrapper } from "@ant-design/pro-layout";
 import styles from "../style.less";
 import Search from "./Search";
 import Save from "./Save";
-import SettingPermission from "../permission/SettingPermission";
+import SettingAutz from "@/components/SettingAutz";
 
 interface RoleProps {
     dispatch: Dispatch<any>;
@@ -22,6 +22,7 @@ interface RoleState {
     saveVisible: boolean;
     settingVisible: boolean;
     searchParams: { [key: string]: string }
+    currentItem: RoleItem;
 }
 
 @connect(({ role, loading }: ConnectState) => ({
@@ -34,6 +35,7 @@ class Role extends Component<RoleProps, RoleState>{
         saveVisible: false,
         settingVisible: false,
         searchParams: {},
+        currentItem: { id: '' },
     }
 
     columns: ColumnProps<RoleItem>[] = [
@@ -81,12 +83,13 @@ class Role extends Component<RoleProps, RoleState>{
     setting = (record: RoleItem) => {
         this.setState({
             settingVisible: true,
+            currentItem: record,
         })
     }
 
     render() {
         const { role: { result }, loading } = this.props;
-        const { saveVisible, settingVisible } = this.state;
+        const { saveVisible, settingVisible, currentItem } = this.state;
         return (
             <PageHeaderWrapper title="角色管理">
                 <Card bordered={false}>
@@ -102,7 +105,12 @@ class Role extends Component<RoleProps, RoleState>{
                     saveVisible && <Save handleSaveVisible={() => this.setState({ saveVisible: false })} />
                 }
                 {
-                    settingVisible && <SettingPermission settingVisible={() => this.setState({ settingVisible: false })} />
+                    settingVisible &&
+                    <SettingAutz
+                        settingVisible={() => this.setState({ settingVisible: false })}
+                        settingId={currentItem.id}
+                        settingType={'role'}
+                    />
                 }
             </PageHeaderWrapper>
         );

@@ -6,7 +6,7 @@ import styles from '../style.less';
 import { Dispatch } from "redux";
 import { connect } from "dva";
 import { ColumnProps } from "antd/lib/table";
-import { PermissionAction } from "./data";
+import { PermissionAction } from "@/components/SettingAutz/data";
 
 interface SaveProps extends FormComponentProps {
     dispatch?: Dispatch<any>;
@@ -41,7 +41,7 @@ class Save extends Component<SaveProps, SaveState>{
         },
     ]
 
-    dataColumns: ColumnProps<>[] = [
+    dataColumns: ColumnProps<any>[] = [
         {
             title: '字段',
             dataIndex: '',

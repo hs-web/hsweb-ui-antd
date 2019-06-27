@@ -1,6 +1,6 @@
 import request from '@/utils/request';
-import { PermissionItem } from './data';
-import { AutzSetting } from './AutzSetting';
+import { PermissionItem } from '@/components/SettingAutz/data';
+import { AutzSetting } from '@/components/SettingAutz/AutzSetting';
 
 export async function list(params: any) {
   return request(`/hsweb/permission`, {

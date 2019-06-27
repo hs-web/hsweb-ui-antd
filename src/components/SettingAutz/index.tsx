@@ -4,8 +4,8 @@ import ConnectState from '@/models/connect';
 import { connect } from 'dva';
 import { Dispatch } from 'redux';
 import { PermissionModelState } from '@/models/permission';
-import { PermissionItem, PermissionAction } from '@/pages/system/permission/data';
-import { CurrentPermission } from './data';
+import { CurrentPermission, PermissionItem } from './data';
+import { AutzSetting } from './AutzSetting';
 const { Link } = Anchor;
 const { Panel } = Collapse;
 
@@ -19,28 +19,40 @@ interface SettingAutzProps {
 }
 
 interface SettingAutzState {
-  modalVisible: boolean;
   activeKey: string[] | any[];
   checkedPermission: string[] | any[] | never[];
   permissionData: PermissionItem[];
-  currentPermission: CurrentPermission | undefined;
+  currentPermission?: CurrentPermission | any;
   checkAll: boolean;
   indeterminate: boolean;
+  tempPermission?: CurrentPermission | any;
 }
+
+const autzTypeMap = new Map();
+autzTypeMap.set('role', '角色');
+autzTypeMap.set('user', '用户');
+
+const priorityMap = new Map();
+priorityMap.set('user', 10);
+priorityMap.set('role', '20');
+
 @connect(({ permission, loading }: ConnectState) => ({
   permission,
   loading: loading.models.permission,
 }))
 class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
+
   state: SettingAutzState = {
-    modalVisible: true,
     activeKey: [],
     checkedPermission: [],
     permissionData: [], //全部的权限
     currentPermission: undefined, //当前用户的权限
     checkAll: false,
     indeterminate: true,
+    tempPermission: undefined,
   };
+
+  private tempPermission: any;
 
   componentWillMount() {
     const { dispatch, settingId, settingType } = this.props;
@@ -60,13 +72,16 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
           settingId,
         },
         callback: (response: any) => {
+          let activeKey = [];
+          let currentPermission = undefined;
           if (response.result) {
-            const activeKey = response.result.details.map((item: any) => item.permissionId);
-            this.setState({
-              activeKey,
-              currentPermission: response.result,
-            });
+            activeKey = response.result.details.map((item: any) => item.permissionId);
+            currentPermission = response.result;
           }
+          this.setState({
+            activeKey,
+            currentPermission,
+          });
         },
       });
     }
@@ -75,11 +90,12 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
   componentWillReceiveProps() {
     const { permission } = this.props;
     const { activeKey, currentPermission } = this.state;
+    if (!permission) return;
     const permissionData = permission.result.data;
-
+    const data = this.tempPermission ? this.tempPermission : currentPermission;
     if (currentPermission) {
-      permissionData.forEach(item => {
-        const current = currentPermission.details.find(c => c.permissionId === item.id);
+      permissionData.forEach((item: PermissionItem) => {
+        const current = data.details.find((c: { permissionId: string; }) => c.permissionId === item.id);
         if (activeKey.indexOf(item.id) > -1) {
           item.open = true;
           if (current) {
@@ -89,10 +105,10 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
           item.open = false;
         }
       });
-      this.setState({
-        permissionData,
-      });
     }
+    this.setState({
+      permissionData,
+    });
   }
 
   handlePermissionItem = (item: PermissionItem) => {
@@ -124,13 +140,10 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
     });
     this.setState({
       permissionData,
-      // checkedList,
-      // indeterminate: !!checkedList.length && checkedList.length < plainOptions.length,
-      // checkAll: checkedList.length === plainOptions.length,
     });
   };
 
-  onCheckAllChange = (e, id: string) => {
+  onCheckAllChange = (e: any, id: string) => {
     const { permissionData } = this.state;
     permissionData.map(item => {
       if (item.id === id) {
@@ -144,14 +157,11 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
 
     this.setState({
       permissionData,
-      // checkedList: e.target.checked ? plainOptions.map(e => e.value) : [],
-      // indeterminate: false,
-      // checkAll: e.target.checked,
     });
   };
 
-  renderPanle = (permissionData: PermissionItem[]) => {
-    return permissionData.map(item => {
+  renderPanle = (permissionData: PermissionItem[]) =>
+    permissionData.map(item => {
       return (
         <Panel
           header={item.name}
@@ -207,20 +217,57 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
         </Panel>
       );
     });
-  };
 
   renderLink = (permissionData: PermissionItem[]) =>
     permissionData.map(item => <Link href={'#' + item.id} title={item.name} key={item.id} />);
 
+  save = () => {
+    const { settingType, settingId, dispatch } = this.props;
+    if (!dispatch) return;
+    const details = this.formatPermission();
+    const autzSetData = new AutzSetting({
+      type: settingType,
+      settingFor: settingId,
+      priority: priorityMap.get(settingType),
+      menus: [],
+      details: details,
+      merge: true,
+    });
+    this.tempPermission = autzSetData;
+    dispatch({
+      type: 'permission/setAutzData',
+      payload: autzSetData,
+      callback: (response: any) => {
+        message.success('保存成功！');
+      },
+    });
+  };
+
+  formatPermission = () => {
+    const { permissionData } = this.state;
+    const { settingType } = this.props;
+    return permissionData.filter(e => e.open === true).map(e => {
+      return {
+        permissionId: e.id,
+        priority: priorityMap.get(settingType),
+        merge: true,
+        dataAccesses: [],
+        actions: e.checkedAction,
+      };
+    });
+  }
+
   render() {
-    const { modalVisible, activeKey, permissionData } = this.state;
+    const { activeKey, permissionData } = this.state;
+    const { settingVisible, settingType } = this.props;
     return (
       <Modal
-        title="用户赋权"
-        visible={modalVisible}
+        title={`${autzTypeMap.get(settingType)}赋权`}
+        // title={autzTypeMap.get(settingType) + "赋权"}
         width={1040}
-        onCancel={() => this.setState({ modalVisible: false })}
-        onOk={() => message.success('保存成功')}
+        onCancel={settingVisible}
+        onOk={() => this.save()}
+        visible
       >
         <Row>
           <Col span={16} style={{ height: 600, overflow: 'auto' }}>

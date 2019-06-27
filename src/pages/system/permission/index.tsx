@@ -3,13 +3,13 @@ import { Dispatch } from "redux";
 import { PermissionModelState } from "@/models/permission";
 import { connect } from "dva";
 import { ConnectState } from "@/models/connect";
-import { PermissionItem } from "./data";
 import { ColumnProps } from "antd/lib/table";
 import { Divider, message, Card, Table } from "antd";
 import { PageHeaderWrapper } from "@ant-design/pro-layout";
 import styles from "../style.less";
 import Search from "./Search";
 import Save from "./Save";
+import { PermissionItem } from "@/components/SettingAutz/data";
 
 interface PermissionProps {
     dispatch: Dispatch<any>;

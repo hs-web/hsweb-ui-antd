@@ -5,7 +5,8 @@ import { Dispatch } from 'redux';
 import { connect } from 'dva';
 import { ConnectState } from '@/models/connect';
 import { PermissionModelState } from '@/models/permission';
-import { AutzSetting, Permission } from './AutzSetting';
+import { PermissionDetail } from '@/components/SettingAutz/data';
+import { AutzSetting, Permission } from '@/components/SettingAutz/AutzSetting';
 
 interface SettingPermissionProps {
   dispatch?: Dispatch<any>;
@@ -63,14 +64,13 @@ class SettingPermission extends Component<SettingPermissionProps, SettingPermiss
               const permissions = result.details;
               const permissionArray: string[] = [];
               permissions
-                .map(item => item.actions.map(action => `${item.permissionId}:${action}`))
+                .map((item: PermissionDetail) => item.actions.map(action => `${item.permissionId}:${action}`))
                 .forEach((element: string[]) => {
                   permissionArray.push(...element);
                 });
               this.setState({
                 checkedKeys: permissionArray,
               });
-              console.log(permissionArray, 'list');
             }
           }
         },
@@ -79,7 +79,7 @@ class SettingPermission extends Component<SettingPermissionProps, SettingPermiss
   }
 
   onExpand = (expandedKeys: string[]) => {
-    console.log('onExpand', expandedKeys);
+    // console.log('onExpand', expandedKeys);
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
     // or, you can remove all expanded children keys.
     this.setState({
@@ -89,12 +89,12 @@ class SettingPermission extends Component<SettingPermissionProps, SettingPermiss
   };
 
   onCheck = (checkedKeys: string[] | { checked: string[]; halfChecked: string[] }) => {
-    console.log('onCheck', checkedKeys);
+    // console.log('onCheck', checkedKeys);
     this.setState({ checkedKeys });
   };
 
   onSelect = (selectedKeys: string[], info: any) => {
-    console.log('onSelect', info);
+    // console.log('onSelect', info);
     this.setState({ selectedKeys });
   };
 
@@ -178,7 +178,6 @@ class SettingPermission extends Component<SettingPermissionProps, SettingPermiss
     detailMap.forEach(element => {
       details.push(element);
     });
-    console.log(details, 'ls');
     return details;
   };
 

@@ -84,7 +84,6 @@ class Users extends Component<UserProps, UserState> {
   };
 
   save = (record: UserItem) => {
-    console.log(record, '保存的数据');
     const { dispatch } = this.props;
     dispatch({
       type: 'users/add',
