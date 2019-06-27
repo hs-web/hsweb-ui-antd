@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Modal, Row, Col, message, Affix, Anchor, Collapse, Switch, Divider, Checkbox } from 'antd';
+import { Modal, Row, Col, message, Affix, Anchor, Collapse, Switch, Divider, Checkbox, Spin } from 'antd';
 import ConnectState from '@/models/connect';
 import { connect } from 'dva';
 import { Dispatch } from 'redux';
@@ -109,6 +109,10 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
     this.setState({
       permissionData,
     });
+  }
+
+  componentWillUnmount() {
+    this.tempPermission = undefined;
   }
 
   handlePermissionItem = (item: PermissionItem) => {
@@ -259,26 +263,31 @@ class SettingAutz extends Component<SettingAutzProps, SettingAutzState> {
 
   render() {
     const { activeKey, permissionData } = this.state;
-    const { settingVisible, settingType } = this.props;
+    const { settingVisible, settingType, loading } = this.props;
     return (
       <Modal
         title={`${autzTypeMap.get(settingType)}赋权`}
-        // title={autzTypeMap.get(settingType) + "赋权"}
         width={1040}
         onCancel={settingVisible}
         onOk={() => this.save()}
+        destroyOnClose
         visible
       >
-        <Row>
-          <Col span={16} style={{ height: 600, overflow: 'auto' }}>
-            <Collapse activeKey={activeKey}>{this.renderPanle(permissionData)}</Collapse>
-          </Col>
-          <Col span={6} offset={2} style={{ height: 600, overflow: 'auto' }}>
-            <Affix>
-              <Anchor>{this.renderLink(permissionData)}</Anchor>
-            </Affix>
-          </Col>
-        </Row>
+        {
+          loading ? <Spin tip="加载中......" style={{ marginLeft: 450 }} /> : (
+            <Row>
+              <Col span={16} style={{ height: 600, overflow: 'auto' }}>
+                <Collapse activeKey={activeKey}>{this.renderPanle(permissionData)}</Collapse>
+              </Col>
+              <Col span={6} offset={2} style={{ height: 600, overflow: 'auto' }}>
+                <Affix>
+                  <Anchor>{this.renderLink(permissionData)}</Anchor>
+                </Affix>
+              </Col>
+            </Row>
+          )
+        }
+
       </Modal>
     );
   }
