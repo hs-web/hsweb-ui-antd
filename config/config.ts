@@ -83,9 +83,9 @@ const uglifyJSOptions =
     : {};
 export default {
   // add for transfer to umi
-  history: 'browser',
-  base: '/dist/',
-  publicPath: '/dist/',
+  history: 'hash',
+  base: './',
+  publicPath: './',
   plugins,
   define: {
     ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION:

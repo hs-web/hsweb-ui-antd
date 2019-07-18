@@ -67,7 +67,7 @@ const request = extend({
 
 request.interceptors.request.use((url, options) => {
   return {
-    // url: url.replace('/hsweb', ''),
+    url: 'http://hsweb.zuaker.com' + url.replace('/hsweb', ''),
     options: {
       ...options,
       headers: {
